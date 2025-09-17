@@ -79,18 +79,6 @@ void sendKeyScan(WORD vk, bool down) {
     SendInput(1, &in, sizeof(INPUT));
 }
 
-
-// Sends a unicode char (optional utility)
-void sendChar(wchar_t ch) {
-    INPUT in{};
-    in.type = INPUT_KEYBOARD;
-    in.ki.wScan = ch;
-    in.ki.dwFlags = KEYEVENTF_UNICODE;
-    ::SendInput(1, &in, sizeof(INPUT));
-    in.ki.dwFlags = KEYEVENTF_UNICODE | KEYEVENTF_KEYUP;
-    ::SendInput(1, &in, sizeof(INPUT));
-}
-
 // Relative mouse move
 void sendMouseMove(int dx, int dy) {
     if (dx == 0 && dy == 0) return;
@@ -122,6 +110,40 @@ void sendMouseWheel(int delta) { // positive = wheel up, negative = down
 
 // --------------------------- Mappings ---------------------------
 
+void send_jump(bool isDown)
+{
+    sendKeyScan(VK_SPACE, isDown);
+}
+
+void send_sneak(bool isDown)
+{
+    sendKeyScan(VK_LSHIFT, isDown);
+}
+
+void send_useitem(bool isDown)
+{
+    sendMouseButton(false, isDown);
+}
+
+void send_attack(bool isDown)
+{
+    sendMouseButton(true, isDown);
+}
+
+void send_drop(bool isDown)
+{
+    sendKeyScan('Q', isDown);
+}
+
+void send_inventory(bool isDown)
+{
+    sendKeyScan('E', isDown);
+}
+
+void send_run(bool isDown)
+{
+	sendKeyScan(VK_LCONTROL, isDown);
+}
 
 // Example mapping: fill these with your own keybinds
 void mapButtons(const XINPUT_GAMEPAD& g, bool* rsPressed) {
@@ -137,39 +159,29 @@ void mapButtons(const XINPUT_GAMEPAD& g, bool* rsPressed) {
 	// idk will probably want to change these so that the user can customize them
 	// also RS button toggles mouse sensitivity modifier doesnt feel right, maybe a button swap
 
-    // A -> 'Space' (jump)
-    if (onPress(XINPUT_GAMEPAD_A)) sendKeyScan(VK_SPACE, true);
-    if (onRelease(XINPUT_GAMEPAD_A)) sendKeyScan(VK_SPACE, false);
-
-    // Y -> 'E' (inventory)
-    if (onPress(XINPUT_GAMEPAD_Y)) sendKeyScan('E', true);
-    if (onRelease(XINPUT_GAMEPAD_Y)) sendKeyScan('E', false);
-
-    // X -> 'Q' (drop)
-    if (onPress(XINPUT_GAMEPAD_X)) sendKeyScan('Q', true);
-    if (onRelease(XINPUT_GAMEPAD_X)) sendKeyScan('Q', false);
-
-    // B -> 'Right Click' (attack)
-    if (onPress(XINPUT_GAMEPAD_B)) sendMouseButton(false, true);
-    if (onRelease(XINPUT_GAMEPAD_B)) sendMouseButton(false, false);
-
-	// LB/RB -> 'mouse wheel' (scroll hotbar)
+    // A
+	if (onPress(XINPUT_GAMEPAD_A)) send_jump(true);
+	if (onRelease(XINPUT_GAMEPAD_A)) send_jump(false);
+    // Y
+	if (onPress(XINPUT_GAMEPAD_Y)) send_inventory(true);
+    if (onRelease(XINPUT_GAMEPAD_Y)) send_inventory(false);
+    // X
+	if (onPress(XINPUT_GAMEPAD_X)) send_drop(true);
+    if (onRelease(XINPUT_GAMEPAD_X)) send_drop(false);
+    // B
+	if (onPress(XINPUT_GAMEPAD_B)) send_sneak(true);
+    if (onRelease(XINPUT_GAMEPAD_B)) send_sneak(false);
+	// LB/RB (scroll hotbar)
     if (onPress(XINPUT_GAMEPAD_LEFT_SHOULDER))  sendMouseWheel(+120);
     if (onPress(XINPUT_GAMEPAD_RIGHT_SHOULDER))  sendMouseWheel(-120);
-
     // Back/Start examples: Back = Tab, Start = Esc
     if (onPress(XINPUT_GAMEPAD_BACK))  sendKeyScan(VK_TAB, true);
     if (onRelease(XINPUT_GAMEPAD_BACK)) sendKeyScan(VK_TAB, false);
     if (onPress(XINPUT_GAMEPAD_START))   sendKeyScan(VK_ESCAPE, true);
     if (onPress(XINPUT_GAMEPAD_START)) sendKeyScan(VK_ESCAPE, false);
-
     // LS button clicks (run)
-    if (onPress(XINPUT_GAMEPAD_LEFT_THUMB))  sendKeyScan(VK_LCONTROL, true);
-    if (onRelease(XINPUT_GAMEPAD_LEFT_THUMB)) sendKeyScan(VK_LCONTROL, false);
-
-	// RS Button toggles mouse sensitivity modifier
-    if (onRelease(XINPUT_GAMEPAD_RIGHT_THUMB))  *rsPressed = *rsPressed ? false : true;
-
+    if (onPress(XINPUT_GAMEPAD_LEFT_THUMB))  send_run(true);
+    if (onRelease(XINPUT_GAMEPAD_LEFT_THUMB)) send_run(false);
     //// D-pad to arrow keys
     if (onPress(XINPUT_GAMEPAD_DPAD_UP)) sendKeyScan(VK_UP, true);
     if (onRelease(XINPUT_GAMEPAD_DPAD_UP)) sendKeyScan(VK_UP, false);
@@ -179,6 +191,9 @@ void mapButtons(const XINPUT_GAMEPAD& g, bool* rsPressed) {
     if (onRelease(XINPUT_GAMEPAD_DPAD_LEFT)) sendKeyScan(VK_LEFT, false);
     if (onPress(XINPUT_GAMEPAD_DPAD_RIGHT)) sendKeyScan(VK_RIGHT, true);
     if (onRelease(XINPUT_GAMEPAD_DPAD_RIGHT)) sendKeyScan(VK_RIGHT, false);
+
+    // RS Button toggles mouse sensitivity modifier
+    if (onRelease(XINPUT_GAMEPAD_RIGHT_THUMB))  *rsPressed = *rsPressed ? false : true;
 }
 
 constexpr WORD WASD_MASK_W = 0x0001;
@@ -235,20 +250,19 @@ void mapTriggers(const XINPUT_GAMEPAD& g) {
     bool curLT = lt > 0.f;
     bool curRT = rt > 0.f;
 
-    // LT = right mouse
     if (curLT && !prevLT) {
-        sendKeyScan(VK_LSHIFT, true); // press Shift (sneak)
+		send_useitem(true);   // press Use Item (right mouse)
     }
     if (!curLT && prevLT) {
-        sendKeyScan(VK_LSHIFT, false); // press Shift (sneak)
+		send_useitem(false);  // release Use Item (right mouse)
     }
 
     // RT = left mouse
     if (curRT && !prevRT) {
-        sendMouseButton(true, true);   // press
+		send_attack(true);   // press
     }
     if (!curRT && prevRT) {
-        sendMouseButton(true, false);  // release
+		send_attack(false);  // release
     }
 
     prevLT = curLT;
@@ -258,6 +272,10 @@ void mapTriggers(const XINPUT_GAMEPAD& g) {
 // --------------------------- Main loop ---------------------------
 int main() {
     int padIndex = 0;
+    XINPUT_STATE state{};
+    TIMECAPS tc;
+    bool rsPressed[XUSER_MAX_COUNT];
+    memset(rsPressed, false, sizeof(bool));
 
 	initializeXInput();
     std::cout << "Welcome to Gamepad to Keyboard/Mouse mapper (C++)\n";
@@ -276,16 +294,10 @@ int main() {
     std::cout << "Press Ctrl+C to exit.\n";
 
     // Optionally, set high timer resolution
-    TIMECAPS tc;
     if (timeGetDevCaps(&tc, sizeof(tc)) == TIMERR_NOERROR) {
         timeBeginPeriod(tc.wPeriodMin);
     }
 
-    XINPUT_STATE state{};
-
-
-    bool rsPressed[XUSER_MAX_COUNT];
-    memset(rsPressed, false, sizeof(bool));
 
     for (;;) {
         DWORD res = XInputGetState(padIndex, &state);
