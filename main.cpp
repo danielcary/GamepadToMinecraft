@@ -113,72 +113,47 @@ static void sendMouseWheel(int delta) { // positive = wheel up, negative = down
 // --------------------------- Mappings ---------------------------
 
 // these are example mappings for Minecraft Java Edition (as of 1.20)
-static void send_jump(bool isDown)
+static void send_jump(bool isDown) { sendKeyScan(VK_SPACE, isDown); }
+static void send_sneak(bool isDown) { sendKeyScan(VK_LSHIFT, isDown); }
+static void send_useitem(bool isDown) { sendMouseButton(false, isDown); }
+static void send_attack(bool isDown) { sendMouseButton(true, isDown); }
+static void send_drop(bool isDown) { sendKeyScan('Q', isDown); }
+static void send_inventory(bool isDown) { sendKeyScan('E', isDown); }
+static void send_run(bool isDown) { sendKeyScan(VK_LCONTROL, isDown); }
+static void send_lhotbar(bool isDown) { if(isDown) sendMouseWheel(+120); }
+static void send_rhotbar(bool isDown) { if (isDown) sendMouseWheel(-120); }
+static void send_playerlist(bool isDown) { sendKeyScan(VK_TAB, isDown); }
+static void send_menu(bool isDown) { sendKeyScan(VK_ESCAPE, isDown); }
+static void send_arrowdown(bool isDown) { sendKeyScan(VK_DOWN, isDown); }
+static void send_arrowup(bool isDown) { sendKeyScan(VK_UP, isDown);}
+static void send_arrowleft(bool isDown) { sendKeyScan(VK_LEFT, isDown); }
+static void send_arrowright(bool isDown) { sendKeyScan(VK_RIGHT, isDown); }
+
+class mapping
 {
-    sendKeyScan(VK_SPACE, isDown);
-}
-
-static void send_sneak(bool isDown)
-{
-    sendKeyScan(VK_LSHIFT, isDown);
-}
-
-static void send_useitem(bool isDown)
-{
-    sendMouseButton(false, isDown);
-}
-
-static void send_attack(bool isDown)
-{
-    sendMouseButton(true, isDown);
-}
-
-static void send_drop(bool isDown)
-{
-    sendKeyScan('Q', isDown);
-}
-
-static void send_inventory(bool isDown)
-{
-    sendKeyScan('E', isDown);
-}
-
-static void send_run(bool isDown)
-{
-	sendKeyScan(VK_LCONTROL, isDown);
-}
-
-static void send_hotbar(bool left) {
-    sendMouseWheel(left ? +120 : -120);
-}
-
-
-
-class  mapping
-{
-
 public:
     enum Button
     {
         BUTTON_JUMP,
-		BUTTON_INVENTORY,
+        BUTTON_INVENTORY,
         BUTTON_DROP,
-		BUTTON_SNEAK,
+        BUTTON_SNEAK,
         BUTTON_LHOTBAR,
         BUTTON_RHOTBAR,
+        BUTTON_PLAYERLIST,
+        BUTTON_MENU,
+        BUTTON_RUN,
+        BUTTON_ARROWDOWN,
+		BUTTON_ARROWUP,
+		BUTTON_ARROWLEFT,
+		BUTTON_ARROWRIGHT,
         BUTTON_CNT,
     };
 
     virtual void update(void* gamepad) = 0; // grabs input
     virtual bool onPress(Button button) = 0;
     virtual bool onRelease(Button button) = 0;
-
-
-
-protected:
 };
-
-
 
  class XInputGamepad : mapping
  {
@@ -189,7 +164,6 @@ protected:
      bool _onPress(WORD mask) { return (pressed & mask) != 0; };
      bool _onRelease(WORD mask) { return (released & mask) != 0; };
 
-
      WORD MAPPINGS[BUTTON_CNT] = {
          XINPUT_GAMEPAD_A,        // BUTTON_JUMP
 		 XINPUT_GAMEPAD_Y,        // BUTTON_INVENTORY
@@ -197,9 +171,15 @@ protected:
 		 XINPUT_GAMEPAD_B,        // BUTTON_SNEAK
 		 XINPUT_GAMEPAD_LEFT_SHOULDER, // BUTTON_LHOTBAR
          XINPUT_GAMEPAD_RIGHT_SHOULDER, // BUTTON_RHOTBAR
+         XINPUT_GAMEPAD_BACK,   // BUTTON_PLAYERLIST
+         XINPUT_GAMEPAD_START, // BUTTON_MENU
+         XINPUT_GAMEPAD_LEFT_THUMB, // BUTTON_RUN
+		 XINPUT_GAMEPAD_DPAD_DOWN, // BUTTON_ARROWDOWN
+		 XINPUT_GAMEPAD_DPAD_LEFT, // BUTTON_ARROWLEFT
+		 XINPUT_GAMEPAD_DPAD_RIGHT, // BUTTON_ARROWRIGHT
+		 XINPUT_GAMEPAD_DPAD_DOWN, // BUTTON_ARROWDOWN
      };
  public:
-
      void update(void* gamepad) override
      {
          const XINPUT_GAMEPAD& g = *(XINPUT_GAMEPAD*)gamepad;
@@ -218,6 +198,13 @@ protected:
      {
          return this->_onRelease(MAPPINGS[button]);
      }
+
+     void sensitivity(bool* rsPressed)
+     {
+         // RS Button toggles mouse sensitivity modifier
+		 if (this->_onRelease(XINPUT_GAMEPAD_RIGHT_THUMB)) 
+             *rsPressed = *rsPressed ? false : true;
+	 };
  };
 
  std::function<void(bool)> mappings[mapping::BUTTON_CNT] = {
@@ -225,42 +212,29 @@ protected:
      send_inventory,   // BUTTON_INVENTORY
 	 send_drop,       // BUTTON_DROP
 	 send_sneak,      // BUTTON_SNEAK
+	 send_lhotbar,     // BUTTON_LHOTBAR
+     send_rhotbar,     // BUTTON_RHOTBAR
+     send_playerlist,   // BUTTON_PLAYERLIST
+     send_menu,         // BUTTON_MENU
+     send_run,          // BUTTON_RUN
+	 send_arrowdown, // BUTTON_ARROWDOWN
+	 send_arrowup,   // BUTTON_ARROWUP
+	 send_arrowleft, // BUTTON_ARROWLEFT
+	 send_arrowright,// BUTTON_ARROWRIGHT
  };
 
- XInputGamepad gpad;
+XInputGamepad gpad;
 // Example mapping: fill these with your own keybinds
 static void mapButtons(const XINPUT_GAMEPAD& g, bool* rsPressed) {
 	gpad.update((void*)&g);
-
 
     for (int i = 0; i < mapping::BUTTON_CNT; i++)
     {
 		if (gpad.onPress((mapping::Button)i)) mappings[i](true);
         if (gpad.onRelease((mapping::Button)i)) mappings[i](false);
 	}
-	//// LB/RB (scroll hotbar)
- //   if (onPress(XINPUT_GAMEPAD_LEFT_SHOULDER))  sendMouseWheel(+120);
- //   if (onPress(XINPUT_GAMEPAD_RIGHT_SHOULDER))  sendMouseWheel(-120);
- //   // Back/Start examples: Back = Tab, Start = Esc
- //   if (onPress(XINPUT_GAMEPAD_BACK))  sendKeyScan(VK_TAB, true);
- //   if (onRelease(XINPUT_GAMEPAD_BACK)) sendKeyScan(VK_TAB, false);
- //   if (onPress(XINPUT_GAMEPAD_START))   sendKeyScan(VK_ESCAPE, true);
- //   if (onPress(XINPUT_GAMEPAD_START)) sendKeyScan(VK_ESCAPE, false);
- //   // LS button clicks (run)
- //   if (onPress(XINPUT_GAMEPAD_LEFT_THUMB))  send_run(true);
- //   if (onRelease(XINPUT_GAMEPAD_LEFT_THUMB)) send_run(false);
- //   //// D-pad to arrow keys
- //   if (onPress(XINPUT_GAMEPAD_DPAD_UP)) sendKeyScan(VK_UP, true);
- //   if (onRelease(XINPUT_GAMEPAD_DPAD_UP)) sendKeyScan(VK_UP, false);
- //   if (onPress(XINPUT_GAMEPAD_DPAD_DOWN)) sendKeyScan(VK_DOWN, true);
- //   if (onRelease(XINPUT_GAMEPAD_DPAD_DOWN)) sendKeyScan(VK_DOWN, false);
- //   if (onPress(XINPUT_GAMEPAD_DPAD_LEFT)) sendKeyScan(VK_LEFT, true);
- //   if (onRelease(XINPUT_GAMEPAD_DPAD_LEFT)) sendKeyScan(VK_LEFT, false);
- //   if (onPress(XINPUT_GAMEPAD_DPAD_RIGHT)) sendKeyScan(VK_RIGHT, true);
- //   if (onRelease(XINPUT_GAMEPAD_DPAD_RIGHT)) sendKeyScan(VK_RIGHT, false);
 
- //   // RS Button toggles mouse sensitivity modifier
- //   if (onRelease(XINPUT_GAMEPAD_RIGHT_THUMB))  *rsPressed = *rsPressed ? false : true;
+    gpad.sensitivity(rsPressed);
 }
 
 constexpr WORD WASD_MASK_W = 0x0001;
