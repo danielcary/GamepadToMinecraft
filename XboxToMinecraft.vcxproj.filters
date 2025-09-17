@@ -21,9 +21,15 @@
     <ClCompile Include="GamepadHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinRTGamepad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GamepadHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinRTGamepad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

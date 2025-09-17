@@ -80,7 +80,7 @@ int listXInputPads(int* idx) {
     for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
         XINPUT_CAPABILITIES caps{};
         if (XInputGetCapabilities(i, XINPUT_FLAG_GAMEPAD, &caps) == ERROR_SUCCESS) {
-			// Battery info (works on wireless; wired reports WIRED) known issues with some wireless controllers
+            // Battery info (works on wireless; wired reports WIRED) known issues with some wireless controllers
             XINPUT_BATTERY_INFORMATION bat{};
             if (pGetBattery(i, BATTERY_DEVTYPE_GAMEPAD, &bat) != ERROR_SUCCESS) {
                 bat.BatteryType = BATTERY_TYPE_UNKNOWN;
@@ -104,10 +104,8 @@ int listXInputPads(int* idx) {
         else {
             std::cout << " \t[" << i << "] (no device)\n";
         }
-        if (cnt == 0) return -1; // no devices
-        if (cnt  > 1) return 0;  // multiple device
-		return cnt; // return the only device index
-
     }
-
+    if (cnt == 0) return -1; // no devices
+    if (cnt > 1) return 0;  // multiple device
+    return cnt; // return the only device index
 }
