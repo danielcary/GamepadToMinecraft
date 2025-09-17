@@ -257,9 +257,22 @@ void mapTriggers(const XINPUT_GAMEPAD& g) {
 
 // --------------------------- Main loop ---------------------------
 int main() {
+    int padIndex = 0;
+
 	initializeXInput();
     std::cout << "Welcome to Gamepad to Keyboard/Mouse mapper (C++)\n";
-    listXInputPads();
+    int cntrlCnt = listXInputPads(&padIndex);
+    if (cntrlCnt <= -1) {
+        std::cerr << "No XInput controllers found. Exiting.\n";
+        return 1;
+    }
+    else if (cntrlCnt == 0) {
+		// select screen for multiple controllers
+    }
+    else {
+		std::cout << "Using controller index " << padIndex << "\n";
+    }
+
     std::cout << "Press Ctrl+C to exit.\n";
 
     // Optionally, set high timer resolution
@@ -269,7 +282,7 @@ int main() {
     }
 
     XINPUT_STATE state{};
-    DWORD padIndex = 0; // 0..XUSER_MAX_COUNT, choose controller 0 by default
+
 
     bool rsPressed[XUSER_MAX_COUNT];
     memset(rsPressed, false, sizeof(bool));

@@ -7,5 +7,9 @@
 
 
 
-void listXInputPads();
+/// <summary>
+/// 
+/// </summary>
+/// <returns>-1 no device, 0 multiple, </returns>
+int listXInputPads(int* idx);
 void initializeXInput();

@@ -74,7 +74,8 @@ void initializeXInput() {
 
 }
 
-void listXInputPads() {
+int listXInputPads(int* idx) {
+    int cnt = 0;
     std::cout << "XInput controllers:\n";
     for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
         XINPUT_CAPABILITIES caps{};
@@ -96,9 +97,17 @@ void listXInputPads() {
             if (caps.Flags & XINPUT_CAPS_PMD_SUPPORTED)     std::cout << "PMD ";
             if (caps.Flags & XINPUT_CAPS_NO_NAVIGATION)     std::cout << "NoNav ";
             std::cout << "\n";
+
+            cnt++;
+            *idx = i;
         }
         else {
             std::cout << " \t[" << i << "] (no device)\n";
         }
+        if (cnt == 0) return -1; // no devices
+        if (cnt  > 1) return 0;  // multiple device
+		return cnt; // return the only device index
+
     }
+
 }
