@@ -5,10 +5,6 @@
 #include <iostream>
 #include <string>
 
-
-
-
-
 static const char* subtypeName(BYTE s) {
     switch (s) {
     case XINPUT_DEVSUBTYPE_GAMEPAD:        return "Gamepad";

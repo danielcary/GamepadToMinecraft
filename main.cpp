@@ -27,12 +27,11 @@
 
 
 static bool sensitivityToggle = false;
-
-// --------------------------- Config ---------------------------
 constexpr int   POLL_MS        = 4;     // main loop period
 
 
-// 
+// ---------------------------- Types -------------------
+
 enum Button
 {
     BUTTON_JUMP,
@@ -80,12 +79,12 @@ static void send_sensitivity(bool isDown) { if (isDown) sensitivityToggle = !sen
 class Gamepad
 {
 private:
-    const MappingArray* mappings;
+    const MappingArray* mappings = nullptr;
 
 public:
-    bool init(MappingArray& mapping)
+    bool init(const MappingArray* mapping)
     {
-		this->mappings = &mapping;
+		this->mappings = mapping;
         return this->_init();
     }
     virtual void update() = 0;
@@ -108,12 +107,12 @@ protected:
  {
  private:
      int padIndex = 0; // only one supported for now
-     XINPUT_STATE g;
+	 XINPUT_STATE g = XINPUT_STATE{ 0 };
      WORD prev = 0;        // last frame’s wButtons
      WORD cur = 0;
      WORD pressed = 0, released = 0;
-     bool _onPress(WORD mask) { return (pressed & mask) != 0; };
-     bool _onRelease(WORD mask) { return (released & mask) != 0; };
+     bool _onPress(WORD mask) const { return (pressed & mask) != 0; };
+     bool _onRelease(WORD mask) const { return (released & mask) != 0; };
 
      WORD MAPPINGS[BUTTON_CNT] = {
          XINPUT_GAMEPAD_A,              // BUTTON_JUMP
@@ -141,6 +140,7 @@ protected:
          }
          else if (cntrlCnt == 0) {
              // TODO: select screen for multiple controllers
+			 throw std::runtime_error("Multiple controllers. Not yet implemented.\n");
          }
          else {
              std::cout << "Using controller index " << padIndex << "\n";
@@ -175,13 +175,13 @@ protected:
          return this->_onRelease(MAPPINGS[button]);
      }
  private:
-      WORD WASD_MASK_W = 0x0001;
+      const WORD WASD_MASK_W = 0x0001;
       WORD WASD_MASK_A = 0x0002;
       WORD WASD_MASK_S = 0x0004;
       WORD WASD_MASK_D = 0x0008;
 
      // Map sticks to mouse movement and WASD (example)
-     void mapSticks() {
+     void mapSticks() const {
          static WORD prev = 0;
          WORD cur = 0, pressed, released;
          auto onPress = [&](WORD mask) { return (pressed & mask) != 0; };
@@ -219,7 +219,7 @@ protected:
      }
 
      // Map triggers to mouse buttons or other actions
-     void mapTriggers() {
+     void mapTriggers() const {
          float lt = normTrigger(this->g.Gamepad.bLeftTrigger);
          float rt = normTrigger(this->g.Gamepad.bRightTrigger);
 
@@ -267,7 +267,7 @@ protected:
      send_sensitivity,  // BUTTON_SENSITIVITY
  };
 
-  MappingArray mappings_alt =  {
+  const MappingArray mappings_alt =  {
     send_jump,          // BUTTON_JUMP
     send_inventory,     // BUTTON_INVENTORY
     send_sensitivity,   // BUTTON_DROP         ****
@@ -285,15 +285,19 @@ protected:
  };
 
 // --------------------------- Main loop ---------------------------
- int main(const char* args, int argc) {
+ int main(int argc, const char* argv[]) {
      Gamepad* g;
      TIMECAPS tc;
 
-     //initWinRTGamepad();
-     //  listWinRTPads
-
      g = new XInputGamepad();
-     g->init(mappings_alt);
+     const MappingArray* mapping = &mappings_default;
+     for (int i = 0; i < argc; i++) {
+         if (strcmp(argv[i], "--alt") == 0 || strcmp(argv[i], "-a") == 0) {
+             std::cout << "Using alternative button layout\n";
+             mapping = &mappings_alt; // already set
+         }
+	 }
+     g->init(mapping);
 
      std::cout << "Welcome to Gamepad to Keyboard/Mouse mapper\n";
      std::cout << "Press Ctrl+C to exit.\n";

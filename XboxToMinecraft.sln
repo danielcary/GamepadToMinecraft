@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XboxToMinecraft", "XboxToMinecraft.vcxproj", "{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}"
 EndProject
@@ -9,6 +9,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Debugalt|x64 = Debugalt|x64
+		Debugalt|x86 = Debugalt|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -17,6 +19,10 @@ Global
 		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Debug|x64.Build.0 = Debug|x64
 		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Debug|x86.ActiveCfg = Debug|Win32
 		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Debug|x86.Build.0 = Debug|Win32
+		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Debugalt|x64.ActiveCfg = Debugalt|x64
+		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Debugalt|x64.Build.0 = Debugalt|x64
+		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Debugalt|x86.ActiveCfg = Debugalt|Win32
+		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Debugalt|x86.Build.0 = Debugalt|Win32
 		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Release|x64.ActiveCfg = Release|x64
 		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Release|x64.Build.0 = Release|x64
 		{FD516A9C-A0A7-49E2-8BA3-9663C9AE0A54}.Release|x86.ActiveCfg = Release|Win32
