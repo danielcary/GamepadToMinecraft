@@ -32,6 +32,7 @@
     <ProjectGuid>{fd516a9c-a0a7-49e2-8ba3-9663c9ae0a54}</ProjectGuid>
     <RootNamespace>XboxToMinecraft</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>GamepadToMinecraft</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
