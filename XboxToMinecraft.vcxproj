@@ -128,11 +128,11 @@
   <ItemGroup>
     <ClCompile Include="GamepadHelper.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="VInput.cpp" />
     <ClCompile Include="WinRTGamepad.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GamepadHelper.h" />
-    <ClInclude Include="WinRTGamepad.h" />
+    <ClInclude Include="VInput.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

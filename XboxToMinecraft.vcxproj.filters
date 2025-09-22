@@ -24,12 +24,12 @@
     <ClCompile Include="WinRTGamepad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GamepadHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WinRTGamepad.h">
+    <ClInclude Include="VInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
